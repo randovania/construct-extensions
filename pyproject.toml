@@ -1,0 +1,121 @@
+[build-system]
+requires = [
+    "setuptools>=64",
+    "setuptools_scm[toml]>=3.4.3",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "construct-extensions"
+description = "A collection of useful extensions for the `construct` library"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "construct>=2.10.0",
+    "typing-extensions>=4.0.0"
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/randovania/construct-extensions"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+typing = [
+    "mypy",
+]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+write_to = "src/construct_extensions/_version.py"
+git_describe_command = "git describe --dirty --tags --long --match v[0-9]*"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+# asyncio_mode = "auto"
+xfail_strict = true
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "skip_dependency_tests: Skips tests that involves calculating dependencies"
+]
+
+[tool.ruff]
+line-length = 120
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W", "C90", "I", "UP", "C4",
+    "RSE",
+    "TCH",
+    "PTH",
+    "COM818", "COM819",
+    "ISC",
+    "PIE",
+
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+]
+extend-ignore = [
+    "ISC001",  # may cause conflicts with formatter
+    "PLR0913",  # Too many arguments to function call
+    "PLR2004",  # Magic values show up everywhere in construct defs
+]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 25.
+# Defaults to 10, but we're being very flexible right now
+max-complexity = 25
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.mypy]
+files = [
+    "src/",
+    "tests/",
+]
+follow_imports = "silent"
+disallow_untyped_defs = false
+local_partial_types = true
+warn_unused_ignores = true
+enable_error_code = [
+    "ignore-without-code",
+]
+
+[[tool.mypy.overrides]]
+# any dependencies which we do not control but are missing types go here
+# not too much can be done about these, so they're not the end of the world
+# dependencies we DO control should use `type: ignore[import-untyped]`
+module = [
+    "construct.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = true
+disable_error_code = [
+    "method-assign",
+]
